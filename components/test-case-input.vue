@@ -47,7 +47,7 @@ async function onClickGenerateExpectedOutput() {
                 Scenario
             </div>
             <UTextarea
-                v-model="testCases[index].prompt" autoresize :rows="1" size="lg" placeholder="e.g. A new fitness app called StayFit" w-full
+                v-model="testCase.prompt" autoresize :rows="1" size="lg" placeholder="e.g. A new fitness app called StayFit" w-full
                 :ui="{
                     rounded: 'rounded-l-md',
                 }"
@@ -61,7 +61,7 @@ async function onClickGenerateExpectedOutput() {
                     </div>
                 </UTooltip>
                 <UButton
-                    v-if="testCases[index].expectedOutput && testCases[index].expectedOutput.trim()"
+                    v-if="testCase.expectedOutput && testCase.expectedOutput.trim()"
                     color="white"
                     icon="i-tabler-sparkles text-indigo text-4.5"
                     size="xs"
@@ -73,7 +73,7 @@ async function onClickGenerateExpectedOutput() {
                 </UButton>
             </div>
             <UTextarea
-                v-model="testCases[index].expectedOutput" autoresize :rows="1" size="lg" placeholder="e.g. A new fitness app called StayFit" w-full
+                v-model="testCase.expectedOutput" autoresize :rows="1" size="lg" placeholder="e.g. A new fitness app called StayFit" w-full
                 :ui="{
                     rounded: 'rounded-l-md',
                 }"
