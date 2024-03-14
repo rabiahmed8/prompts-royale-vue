@@ -1,6 +1,7 @@
 <!-- eslint-disable no-console -->
 <script lang="ts" setup>
 import { randomId } from '@/utils/random-id'
+import { TestCase } from 'utils/types';
 
 const {
     description,
@@ -13,6 +14,7 @@ const {
     generateTestCases,
 } = useAutoPrompter()
 const toast = useNotification()
+// const testCases = ref<TestCase[]>([]);
 
 const numberOfBattles = ref(60)
 async function runOrStopBattles() {
@@ -79,20 +81,28 @@ function onFileChange(event: Event) {
         console.error('Please select a CSV file.')
         return
     }
+    console.time("myTimer")
     const reader = new FileReader()
     reader.onload = () => {
         const csvData = reader.result as string
         const rows = csvData.split('\r\n')
+        let column = rows[0].split(',')
+        let inputIndex = column.findIndex((e)=>(e.toLowerCase()=='input'))
+        let outputIndex = column.findIndex((e)=>(e.toLowerCase()=='output'))
+        console.log(rows[0],column,inputIndex,outputIndex)
         const data = rows.slice(1)
+
         const dataArray = data.map(row => row.split(','))
         console.log(dataArray)
         const mappedData = dataArray.map((row: any) => ({
-            prompt: row[1],
-            expectedOutput: row[2],
+            prompt: row[inputIndex],
+            expectedOutput: row[outputIndex],
             id: randomId(),
         }))
+        console.log([...testCases.value, ...mappedData])
         testCases.value = [...testCases.value, ...mappedData]
     }
+    console.timeEnd("myTimer")
     // Read the CSV file as text
     reader.readAsText(uploadedFile)
     console.log('uploadedFile:', uploadedFile)
@@ -179,6 +189,7 @@ function deleteTestCases() {
                         v-for="testCase in testCases"
                         :key="testCase.id"
                         :test-case-id="testCase.id"
+                        :test-case="testCase"
                     />
                 </div>
                 <template #placeholder>

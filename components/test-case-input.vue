@@ -1,6 +1,7 @@
 <script lang="ts" setup>
-const props = defineProps<{ testCaseId: string }>()
+import { TestCase } from '../utils/types'
 
+const props = defineProps<{ testCaseId: string,testCase:TestCase }>()
 const { testCases, getGeneration, description } = useAutoPrompter()
 const index = computed(() =>
     testCases.value.findIndex(({ id }) => id === props.testCaseId),
