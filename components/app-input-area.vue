@@ -5,7 +5,7 @@ import { TestCase } from 'utils/types';
 
 const {
     description,
-    testCases,
+    // testCases,
     candidates,
     runNumberOfBattles,
     battlesToRun,
@@ -14,7 +14,7 @@ const {
     generateTestCases,
 } = useAutoPrompter()
 const toast = useNotification()
-// const testCases = ref<TestCase[]>([]);
+const testCases = ref<TestCase[]>([]);
 
 const numberOfBattles = ref(60)
 async function runOrStopBattles() {
