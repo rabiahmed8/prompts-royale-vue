@@ -1,15 +1,27 @@
+<!-- eslint-disable vue/no-mutating-props -->
 <script lang="ts" setup>
-import { TestCase } from '../utils/types'
+import { computed, defineProps, ref } from 'vue'
+import type { TestCase } from '../utils/types'
 
-const props = defineProps<{ testCaseId: string,testCase:TestCase }>()
+const props = defineProps<{ testCaseId: string;testCase: TestCase }>()
+const emits = defineEmits(['delete']);
+
+const deleteTestCase = () => {
+  emits('delete', props.testCaseId);
+};
+
 const { testCases, getGeneration, description } = useAutoPrompter()
+
 const index = computed(() =>
     testCases.value.findIndex(({ id }) => id === props.testCaseId),
 )
 
-function deleteTestCase() {
-    testCases.value = testCases.value.filter(({ id }) => id !== props.testCaseId)
-}
+// function deleteTestCase() {
+//     testCases.value = testCases.value.filter(({ id }) => id !== props.testCaseId)
+// }
+// function deleteTestCase() {
+//     testCases.value = testCases.value.filter(({ id }) => id !== props.testCase.id)
+// }
 
 const isGeneratingExpectedOutput = ref(false)
 async function onClickGenerateExpectedOutput() {
@@ -73,6 +85,7 @@ async function onClickGenerateExpectedOutput() {
                 </UButton>
             </div>
             <UTextarea
+
                 v-model="testCase.expectedOutput" autoresize :rows="1" size="lg" placeholder="e.g. A new fitness app called StayFit" w-full
                 :ui="{
                     rounded: 'rounded-l-md',

@@ -1,7 +1,7 @@
 <!-- eslint-disable no-console -->
 <script lang="ts" setup>
+import type { TestCase } from 'utils/types'
 import { randomId } from '@/utils/random-id'
-import { TestCase } from 'utils/types';
 
 const {
     description,
@@ -14,7 +14,11 @@ const {
     generateTestCases,
 } = useAutoPrompter()
 const toast = useNotification()
-const testCases = ref<TestCase[]>([]);
+const testCases = ref<TestCase[]>([])
+
+const deleteTestCase = (testCaseId: any) => {
+  testCases.value = testCases.value.filter(testCase => testCase.id !== testCaseId);
+};
 
 const numberOfBattles = ref(60)
 async function runOrStopBattles() {
@@ -81,15 +85,15 @@ function onFileChange(event: Event) {
         console.error('Please select a CSV file.')
         return
     }
-    console.time("myTimer")
+    console.time('myTimer')
     const reader = new FileReader()
     reader.onload = () => {
         const csvData = reader.result as string
         const rows = csvData.split('\r\n')
-        let column = rows[0].split(',')
-        let inputIndex = column.findIndex((e)=>(e.toLowerCase()=='input'))
-        let outputIndex = column.findIndex((e)=>(e.toLowerCase()=='output'))
-        console.log(rows[0],column,inputIndex,outputIndex)
+        const column = rows[0].split(',')
+        const inputIndex = column.findIndex(e => (e.toLowerCase() === 'input'))
+        const outputIndex = column.findIndex(e => (e.toLowerCase() === 'output'))
+        console.log(rows[0], column, inputIndex, outputIndex)
         const data = rows.slice(1)
 
         const dataArray = data.map(row => row.split(','))
@@ -102,11 +106,14 @@ function onFileChange(event: Event) {
         console.log([...testCases.value, ...mappedData])
         testCases.value = [...testCases.value, ...mappedData]
     }
-    console.timeEnd("myTimer")
+    console.timeEnd('myTimer')
     // Read the CSV file as text
     reader.readAsText(uploadedFile)
     console.log('uploadedFile:', uploadedFile)
+    if (fileInputRef.value)
+        fileInputRef.value.value = ''
 }
+
 function deleteTestCases() {
     testCases.value = []
 }
@@ -190,6 +197,7 @@ function deleteTestCases() {
                         :key="testCase.id"
                         :test-case-id="testCase.id"
                         :test-case="testCase"
+                        @delete="deleteTestCase"
                     />
                 </div>
                 <template #placeholder>
