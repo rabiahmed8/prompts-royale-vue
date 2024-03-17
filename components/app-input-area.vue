@@ -16,9 +16,10 @@ const {
 const toast = useNotification()
 const testCases = ref<TestCase[]>([])
 
-const deleteTestCase = (testCaseId: any) => {
-  testCases.value = testCases.value.filter(testCase => testCase.id !== testCaseId);
-};
+// eslint-disable-next-line @typescript-eslint/space-before-function-paren
+function deleteTestCase (testCaseId: any) {
+    testCases.value = testCases.value.filter(testCase => testCase.id !== testCaseId)
+}
 
 const numberOfBattles = ref(60)
 async function runOrStopBattles() {
@@ -74,13 +75,42 @@ function onUploadCSV() {
         fileInputRef.value.click()
 }
 
+function parseCSV(csvData: string) {
+    const rows = csvData.split('\n')
+    const parsedData = rows.map((row) => {
+        const columns = []
+        let insideQuotes = false
+        let currentColumn = ''
+
+        for (let i = 0; i < row.length; i++) {
+            const char = row[i]
+
+            if (char === '"') {
+                insideQuotes = !insideQuotes
+            }
+            else if (char === ',' && !insideQuotes) {
+                columns.push(currentColumn.trim())
+                currentColumn = ''
+            }
+            else {
+                currentColumn += char
+            }
+        }
+
+        columns.push(currentColumn.trim()) // Push the last column
+        return columns
+    })
+
+    return parsedData
+}
+
 function onFileChange(event: Event) {
     const input = event.target as HTMLInputElement
     if (!input.files)
         return
     const uploadedFile = input.files[0]
     console.error(uploadedFile)
-    // Check if the uploaded file is a CSV file
+
     if (uploadedFile.type !== 'text/csv') {
         console.error('Please select a CSV file.')
         return
@@ -89,27 +119,31 @@ function onFileChange(event: Event) {
     const reader = new FileReader()
     reader.onload = () => {
         const csvData = reader.result as string
+        console.log(csvData)
         const rows = csvData.split('\r\n')
         const column = rows[0].split(',')
+        // const { rows, columns } = parseCSV(csvData)
         const inputIndex = column.findIndex(e => (e.toLowerCase() === 'input'))
         const outputIndex = column.findIndex(e => (e.toLowerCase() === 'output'))
-        console.log(rows[0], column, inputIndex, outputIndex)
-        const data = rows.slice(1)
+        const parsedData = parseCSV(csvData)
+        console.log(parsedData)
+        const data = parsedData.slice(1)
 
-        const dataArray = data.map(row => row.split(','))
-        console.log(dataArray)
-        const mappedData = dataArray.map((row: any) => ({
+        // const dataArray = data.map(row => row.split(','))
+        // console.log(dataArray)
+        const mappedData = data.map((row: any) => ({
             prompt: row[inputIndex],
             expectedOutput: row[outputIndex],
-            id: randomId(),
+            id: row[0],
+            // id: randomId(),
         }))
-        console.log([...testCases.value, ...mappedData])
+        // console.log([...testCases.value, ...mappedData])
         testCases.value = [...testCases.value, ...mappedData]
     }
     console.timeEnd('myTimer')
-    // Read the CSV file as text
+
     reader.readAsText(uploadedFile)
-    console.log('uploadedFile:', uploadedFile)
+    // console.log('uploadedFile:', uploadedFile)
     if (fileInputRef.value)
         fileInputRef.value.value = ''
 }
