@@ -76,11 +76,29 @@ function onUploadCSV() {
 }
 
 function parseCSV(csvData: string) {
-    const rows = csvData.split('\n')
+    let currentIndex = 0
+    const rows: string[] = ['']
+    let insideQuotes = false
+
+    while (currentIndex < csvData.length) {
+        const char = csvData[currentIndex++]
+
+        if (char === '"') {
+            insideQuotes = !insideQuotes
+            rows[rows.length - 1] += char
+        }
+        else if (char === '\n' && !insideQuotes) {
+            rows.push('')
+        }
+        else {
+            rows[rows.length - 1] += char
+        }
+    }
+
     const parsedData = rows.map((row) => {
         const columns = []
-        let insideQuotes = false
         let currentColumn = ''
+        insideQuotes = false
 
         for (let i = 0; i < row.length; i++) {
             const char = row[i]
@@ -97,8 +115,9 @@ function parseCSV(csvData: string) {
             }
         }
 
-        columns.push(currentColumn.trim()) // Push the last column
-        return columns
+        columns.push(currentColumn.trim())
+        const sanitizedColumns = columns.map(col => col.replace(/\n/g, ' '))
+        return sanitizedColumns
     })
 
     return parsedData
