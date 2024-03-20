@@ -104,7 +104,20 @@ function parseCSV(csvData: string) {
             const char = row[i]
 
             if (char === '"') {
-                insideQuotes = !insideQuotes
+                // insideQuotes = !insideQuotes
+                // currentColumn += char
+                if (insideQuotes) {
+                    if (i < row.length - 1 && row[i + 1] === '"') {
+                        currentColumn += char
+                        i++
+                    }
+                    else {
+                        insideQuotes = false
+                    }
+                }
+                else {
+                    insideQuotes = true
+                }
             }
             else if (char === ',' && !insideQuotes) {
                 columns.push(currentColumn.trim())
@@ -150,12 +163,30 @@ function onFileChange(event: Event) {
 
         // const dataArray = data.map(row => row.split(','))
         // console.log(dataArray)
-        const mappedData = data.map((row: any) => ({
-            prompt: row[inputIndex],
-            expectedOutput: row[outputIndex],
-            id: row[0],
-            // id: randomId(),
-        }))
+
+        // const mappedData = data.map((row: any) => ({
+        //     prompt: row[inputIndex],
+        //     expectedOutput: row[outputIndex],
+        //     id: row[0],
+        //     // id: randomId(),
+        // }))
+
+        const mappedData = data.map((row: any) => {
+            let idValue: string
+            const idColumnIndex = column.findIndex((e: string) => e.toLowerCase() === 'id')
+
+            if (idColumnIndex !== -1 && row[idColumnIndex])
+                idValue = row[idColumnIndex]
+
+            else
+                idValue = randomId()
+
+            return {
+                prompt: row[inputIndex],
+                expectedOutput: row[outputIndex],
+                id: idValue,
+            }
+        })
         // console.log([...testCases.value, ...mappedData])
         testCases.value = [...testCases.value, ...mappedData]
     }
